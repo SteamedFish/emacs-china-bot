@@ -1,0 +1,13 @@
+[Unit]
+Description=Service of emacs-china rss bot
+
+[Service]
+User=steamedfish
+Group=steamedfish
+ExecStart=/usr/bin/python /home/steamedfish/tiny-scripts/emacs-china-bot/feed-parser.py
+Restart=always
+RestartSec=10
+StartLimitBurst=3
+
+[Install]
+WantedBy=default.target
