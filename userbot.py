@@ -3,10 +3,17 @@
 """telegram userbot."""
 
 import configparser
+import io
+from collections import defaultdict
+from datetime import datetime, timedelta
 
 from telethon import TelegramClient, events
 
 import aiocron
+import jieba
+from dateutil.relativedelta import relativedelta
+from dateutil.tz import tzlocal
+from wordcloud import WordCloud
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -17,12 +24,107 @@ if "SteamedFish" in config:
 
 userbot = TelegramClient("SteamedFish", api_id, api_hash).start()
 
+stop_words = {
+    "www",
+    "com",
+    "https",
+    "http",
+    "htm",
+    "html",
+    "的",
+    "我",
+    ",",
+    "，",
+    ".",
+    "…",
+    "?",
+    "？",
+    "(",
+    ")",
+    "（",
+    "）",
+    "...",
+}
+
+
+async def generate_word_cloud(
+    channel="@emacs_zh",
+    from_user: str = None,
+    offset_date: datetime = datetime.now(tzlocal()),
+):
+    """生成词云."""
+    words = defaultdict(int)
+
+    async for msg in userbot.iter_messages(channel, from_user=from_user):
+        if msg.date < offset_date:
+            break
+        if msg.via_bot:
+            # ignore bots
+            continue
+        if msg.text:
+            for word in jieba.cut(msg.text):
+                if word.lower() == "哇" or (
+                    len(word) > 1 and word.lower() not in stop_words
+                ):
+                    words[word.lower()] += 1
+
+    image = (
+        WordCloud(
+            font_path="/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+            width=800,
+            height=400,
+        )
+        .generate_from_frequencies(words)
+        .to_image()
+    )
+    stream = io.BytesIO()
+    image.save(stream, "PNG")
+
+    await userbot.send_message(
+        channel, f"{channel} 频道从 {offset_date} 到现在的消息词云", file=stream.getvalue()
+    )
+
+
+@aiocron.crontab("0 0 * * *")
+async def generate_word_cloud_for_channels_daily(
+    channels=["@emacs_zh", "@keyboard_cn"],
+    offset_date=datetime.now(tzlocal()) - timedelta(days=1),
+) -> None:
+    for channel in channels:
+        await generate_word_cloud(channel, None, offset_date)
+
+
+@aiocron.crontab("0 0 * * 7")
+async def generate_word_cloud_for_channels_weekly(
+    channels=["@emacs_zh", "@keyboard_cn"],
+    offset_date=datetime.now(tzlocal()) - timedelta(weeks=1),
+) -> None:
+    for channel in channels:
+        await generate_word_cloud(channel, None, offset_date)
+
+
+@aiocron.crontab("0 0 1 * *")
+async def generate_word_cloud_for_channels_monthly(
+    channels=["@emacs_zh", "@keyboard_cn"],
+    offset_date=datetime.now(tzlocal()) - relativedelta(months=1),
+) -> None:
+    for channel in channels:
+        await generate_word_cloud(channel, None, offset_date)
+
+
+@aiocron.crontab("0 0 1 1 *")
+async def generate_word_cloud_for_channels_yealy(
+    channels=["@emacs_zh", "@keyboard_cn"],
+    offset_date=datetime.now(tzlocal()) - relativedelta(years=1),
+) -> None:
+    for channel in channels:
+        await generate_word_cloud(channel, None, offset_date)
+
 
 @userbot.on(events.ChatAction(chats="@emacszh"))
 async def remove_join_messages(event) -> None:
     """remove messages of join."""
     if event.user_joined:
-        print("deleting joining message")
         await event.delete()
 
 
