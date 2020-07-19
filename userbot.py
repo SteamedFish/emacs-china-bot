@@ -94,7 +94,7 @@ async def generate_word_cloud_for_channels_daily(
         await generate_word_cloud(channel, None, offset_date)
 
 
-@aiocron.crontab("0 0 * * 7")
+@aiocron.crontab("0 0 * * 1")
 async def generate_word_cloud_for_channels_weekly(
     channels=["@emacs_zh", "@keyboard_cn"],
     offset_date=datetime.now(tzlocal()) - timedelta(weeks=1),
