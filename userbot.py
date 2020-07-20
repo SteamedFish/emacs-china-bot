@@ -58,8 +58,12 @@ async def generate_word_cloud(
     async for msg in userbot.iter_messages(channel, from_user=from_user):
         if msg.date < offset_date:
             break
-        if msg.via_bot:
-            # ignore bots
+        # if msg.via_bot:
+        #     # ignore bots
+        #     # 这个不太对，这个其实是 inline bot，不应该忽略
+        #     continue
+        if msg.from_id in [799930206, 801249359]:
+            # ignore emacs-china-rss and keyboard bot
             continue
         if msg.text:
             for word in jieba.cut(msg.text):
