@@ -4,6 +4,7 @@ Description=Service of emacs-china rss bot
 [Service]
 User=steamedfish
 Group=steamedfish
+WorkingDirectory=/home/steamedfish/tiny-scripts/emacs-china-bot
 ExecStart=/usr/bin/python /home/steamedfish/tiny-scripts/emacs-china-bot/feed-parser.py
 Restart=always
 RestartSec=10
