@@ -7,12 +7,11 @@ import io
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-from telethon import TelegramClient, events
-
 import aiocron
 import jieba
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
+from telethon import TelegramClient, events
 from wordcloud import WordCloud
 
 config = configparser.ConfigParser()
