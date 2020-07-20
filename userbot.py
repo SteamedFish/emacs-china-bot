@@ -50,13 +50,16 @@ stop_words = {
 async def generate_word_cloud(
     channel="@emacs_zh",
     from_user: str = None,
-    offset_date: datetime = datetime.now(tzlocal()),
+    from_time: datetime = datetime.now(tzlocal()) - timedelta(days=1),
+    end_time: datetime = datetime.now(tzlocal()),
 ):
     """生成词云."""
     words = defaultdict(int)
 
-    async for msg in userbot.iter_messages(channel, from_user=from_user):
-        if msg.date < offset_date:
+    async for msg in userbot.iter_messages(
+        channel, from_user=from_user, offset_date=end_time
+    ):
+        if msg.date < from_time:
             break
         # if msg.via_bot:
         #     # ignore bots
@@ -85,44 +88,44 @@ async def generate_word_cloud(
     image.save(stream, "PNG")
 
     await userbot.send_message(
-        channel, f"{channel} 频道从 {offset_date} 到现在的消息词云", file=stream.getvalue()
+        channel, f"{channel} 频道从 {from_time} 到现在的消息词云", file=stream.getvalue()
     )
 
 
 @aiocron.crontab("0 0 * * *")
 async def generate_word_cloud_for_channels_daily(
     channels=["@emacs_zh", "@keyboard_cn"],
-    offset_date=datetime.now(tzlocal()) - timedelta(days=1),
+    from_time=datetime.now(tzlocal()) - timedelta(days=1),
 ) -> None:
     for channel in channels:
-        await generate_word_cloud(channel, None, offset_date)
+        await generate_word_cloud(channel, None, from_time)
 
 
 @aiocron.crontab("0 0 * * 1")
 async def generate_word_cloud_for_channels_weekly(
     channels=["@emacs_zh", "@keyboard_cn"],
-    offset_date=datetime.now(tzlocal()) - timedelta(weeks=1),
+    from_time=datetime.now(tzlocal()) - timedelta(weeks=1),
 ) -> None:
     for channel in channels:
-        await generate_word_cloud(channel, None, offset_date)
+        await generate_word_cloud(channel, None, from_time)
 
 
 @aiocron.crontab("0 0 1 * *")
 async def generate_word_cloud_for_channels_monthly(
     channels=["@emacs_zh", "@keyboard_cn"],
-    offset_date=datetime.now(tzlocal()) - relativedelta(months=1),
+    from_time=datetime.now(tzlocal()) - relativedelta(months=1),
 ) -> None:
     for channel in channels:
-        await generate_word_cloud(channel, None, offset_date)
+        await generate_word_cloud(channel, None, from_time)
 
 
 @aiocron.crontab("0 0 1 1 *")
 async def generate_word_cloud_for_channels_yealy(
     channels=["@emacs_zh", "@keyboard_cn"],
-    offset_date=datetime.now(tzlocal()) - relativedelta(years=1),
+    from_time=datetime.now(tzlocal()) - relativedelta(years=1),
 ) -> None:
     for channel in channels:
-        await generate_word_cloud(channel, None, offset_date)
+        await generate_word_cloud(channel, None, from_time)
 
 
 @userbot.on(events.ChatAction(chats="@emacszh"))
