@@ -23,34 +23,12 @@ if "SteamedFish" in config:
 
 userbot = TelegramClient("SteamedFish", api_id, api_hash).start()
 
-stop_words = {
-    "www",
-    "com",
-    "https",
-    "http",
-    "htm",
-    "html",
-    "的",
-    "我",
-    ",",
-    "，",
-    ".",
-    "…",
-    "?",
-    "？",
-    "(",
-    ")",
-    "（",
-    "）",
-    "...",
-}
+with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
+    stop_words = [line.strip() for line in file.readlines()]
 
 
 async def generate_word_cloud(
-    channel: str,
-    from_user: str,
-    from_time: datetime,
-    end_time: datetime,
+    channel: str, from_user: str, from_time: datetime, end_time: datetime,
 ):
     """生成词云."""
     words = defaultdict(int)
@@ -69,9 +47,7 @@ async def generate_word_cloud(
             continue
         if msg.text:
             for word in jieba.cut(msg.text):
-                if word.lower() == "哇" or (
-                    len(word) > 1 and word.lower() not in stop_words
-                ):
+                if word.lower() not in stop_words:
                     words[word.lower()] += 1
 
     image = (
