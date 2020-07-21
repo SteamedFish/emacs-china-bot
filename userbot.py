@@ -89,7 +89,8 @@ async def generate_word_cloud_from_event(event) -> None:
         return
     to_chat = await event.get_chat()
     if msg.is_reply:
-        user = await msg.get_reply_message().get_sender()
+        reply = await msg.get_reply_message()
+        user = await reply.get_sender()
     else:
         user = await msg.get_sender()
 
