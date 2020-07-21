@@ -24,7 +24,7 @@ if "SteamedFish" in config:
 userbot = TelegramClient("SteamedFish", api_id, api_hash).start()
 
 with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
-    stop_words = [line.strip() for line in file.readlines()]
+    stop_words = set(file.read().splitlines())
 
 
 async def generate_word_cloud(
