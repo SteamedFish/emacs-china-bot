@@ -22,6 +22,7 @@ if "SteamedFish" in config:
     bot_token = config["emacs-china"]["token"]
 
 userbot = TelegramClient("SteamedFish", api_id, api_hash).start()
+rssbot = TelegramClient("rssbot", api_id, api_hash).start(bot_token=bot_token)
 
 with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
     stop_words = [line.strip() for line in file.readlines()]
@@ -69,6 +70,13 @@ async def generate_word_cloud(
         f"{end_time.isoformat(sep=' ',timespec='seconds')} 的消息词云",
         file=stream.getvalue(),
     )
+
+
+@rssbot.on(events.NewMessage(pattern="/start"))
+async def start(event):
+    """Send a message when the command /start is issued."""
+    await event.respond("不许瞎撩 bot!")
+    raise events.StopPropagation
 
 
 @aiocron.crontab("0 0 * * *")
