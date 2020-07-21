@@ -63,7 +63,9 @@ async def generate_word_cloud(
     image.save(stream, "PNG")
 
     await userbot.send_message(
-        channel, f"{channel} 频道从 {from_time} 到现在的消息词云", file=stream.getvalue()
+        channel,
+        f"{channel} 频道从 {from_time} 到 {end_time} 的消息词云",
+        file=stream.getvalue()
     )
 
 
