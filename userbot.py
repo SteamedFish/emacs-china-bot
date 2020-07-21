@@ -4,6 +4,7 @@
 
 import configparser
 import io
+import re
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -11,7 +12,7 @@ import aiocron
 import jieba
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
-from telethon import TelegramClient, events
+from telethon import TelegramClient, events, utils
 from wordcloud import WordCloud
 
 config = configparser.ConfigParser()
@@ -29,7 +30,7 @@ with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
 
 
 async def generate_word_cloud(
-    channel: str, from_user: str, from_time: datetime, end_time: datetime,
+    channel: str, from_user, from_time: datetime, end_time: datetime,
 ):
     """生成词云."""
     words = defaultdict(int)
@@ -65,8 +66,9 @@ async def generate_word_cloud(
 
     await userbot.send_message(
         channel,
-        f"{channel} 频道从 "
-        f"{from_time.isoformat(sep=' ',timespec='seconds')} 到 "
+        f"{utils.get_display_name(channel)} 频道 "
+        f"{'' if from_user is None else utils.get_display_name(from_user)}"
+        f" 从 {from_time.isoformat(sep=' ',timespec='seconds')} 到 "
         f"{end_time.isoformat(sep=' ',timespec='seconds')} 的消息词云",
         file=stream.getvalue(),
     )
@@ -77,6 +79,35 @@ async def start(event):
     """Send a message when the command /start is issued."""
     await event.respond("不许瞎撩 bot!")
     raise events.StopPropagation
+
+
+@userbot.on(events.NewMessage(pattern="/wordcloud"))
+async def generate_word_cloud_from_event(event) -> None:
+    """generate word cloud based on event."""
+    msg = event.message
+    if (not msg.text) or (not msg.text.lower().startswith("/wordcloud")):
+        return
+    to_chat = await event.get_chat()
+    if msg.is_reply:
+        user = await msg.get_reply_message().get_sender()
+    else:
+        user = await msg.get_sender()
+
+    if msg.text.lower().startswith("/wordcloud@emacs_china_rss_bot"):
+        prefixlen = len("/wordcloud@emacs_china_rss_bot")
+    else:
+        prefixlen = len("/wordcloud")
+    try:
+        days = int(msg.text.lower()[prefixlen:])
+    except ValueError:
+        days = 1
+
+    await generate_word_cloud(
+        to_chat,
+        user,
+        datetime.now(tzlocal()) - timedelta(days=days),
+        datetime.now(tzlocal()),
+    )
 
 
 @aiocron.crontab("0 0 * * *")
