@@ -38,6 +38,10 @@ async def generate_word_cloud(
     """生成词云."""
     words = defaultdict(int)
 
+    if isinstance(channel, str):
+        # 转换成 entity 才能有更多方法
+        channel = await userbot.get_entity(channel)
+
     async for msg in userbot.iter_messages(
         channel, from_user=from_user, offset_date=end_time
     ):
