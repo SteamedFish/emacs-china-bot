@@ -38,8 +38,6 @@ async def generate_word_cloud(
     """生成词云."""
     words = defaultdict(int)
 
-    me = await userbot.get_me()
-
     if isinstance(channel, str):
         # 转换成 entity 才能有更多方法
         channel = await userbot.get_entity(channel)
@@ -51,7 +49,8 @@ async def generate_word_cloud(
             break
         if msg.from_id in [799930206, 801249359]:
             # ignore emacs-china-rss and keyboard bot
-        if msg.from_id == me.id and msg.text.endswith("的消息词云"):
+        fromuser = await userbot.get_entity(msg.from_id)
+        if fromuser.is_self and msg.text.endswith("的消息词云"):
             # 忽略之前自己发送的词云消息
             continue
         if msg.text:
