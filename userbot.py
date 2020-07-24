@@ -49,10 +49,6 @@ async def generate_word_cloud(
     ):
         if msg.date < from_time:
             break
-        # if msg.via_bot:
-        #     # ignore bots
-        #     # 这个不太对，这个其实是 inline bot，不应该忽略
-        #     continue
         if msg.from_id in [799930206, 801249359]:
             # ignore emacs-china-rss and keyboard bot
         if msg.from_id == me.id and msg.text.endswith("的消息词云"):
