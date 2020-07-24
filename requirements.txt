@@ -1,4 +1,5 @@
-jieba
-telethon
-wordcloud
+Telethon
+requests
 aiocron
+jieba
+python_dateutil
