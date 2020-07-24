@@ -19,6 +19,7 @@ config.read("config.ini")
 if "SteamedFish" in config:
     api_id = config["SteamedFish"]["api_id"]
     api_hash = config["SteamedFish"]["api_hash"]
+if "emacs-china" in config:
     bot_token = config["emacs-china"]["token"]
 
 userbot = TelegramClient("SteamedFish", api_id, api_hash).start()
