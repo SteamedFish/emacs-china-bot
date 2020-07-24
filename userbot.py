@@ -47,11 +47,13 @@ async def generate_word_cloud(
     ):
         if msg.date < from_time:
             break
-        if msg.from_id in [799930206, 801249359]:
-            # ignore emacs-china-rss and keyboard bot
         fromuser = await userbot.get_entity(msg.from_id)
         if fromuser.is_self and msg.text.endswith("的消息词云"):
             # 忽略之前自己发送的词云消息
+            continue
+        print("user is:", fromuser, utils.get_display_name(fromuser))
+        if fromuser.bot:
+            # ignore messages from bot
             continue
         if msg.text:
             for word in jieba.cut(msg.text):
