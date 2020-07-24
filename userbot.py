@@ -51,7 +51,6 @@ async def generate_word_cloud(
         if fromuser.is_self and msg.text.endswith("的消息词云"):
             # 忽略之前自己发送的词云消息
             continue
-        print("user is:", fromuser, utils.get_display_name(fromuser))
         if fromuser.bot:
             # ignore messages from bot
             continue
