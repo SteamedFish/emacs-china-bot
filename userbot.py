@@ -11,7 +11,7 @@ import aiocron
 import jieba
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
-from telethon import TelegramClient, events, utils
+from telethon import TelegramClient, events, utils, hints
 from wordcloud import WordCloud
 
 config = configparser.ConfigParser()
@@ -30,7 +30,10 @@ with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
 
 
 async def generate_word_cloud(
-    channel: str, from_user, from_time: datetime, end_time: datetime,
+    channel: hints.EntityLike,
+    from_user: hints.EntityLike,
+    from_time: datetime,
+    end_time: datetime,
 ):
     """生成词云."""
     words = defaultdict(int)
