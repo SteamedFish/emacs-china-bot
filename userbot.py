@@ -162,7 +162,7 @@ async def remove_join_messages(event) -> None:
         await event.delete()
 
 
-@aiocron.crontab("10 * * * *")
+@aiocron.crontab("* 2 * * *")
 async def remove_deleted_account(channel: str = "@emacszh") -> None:
     """remove all deleted account from channel everyday."""
     async for user in userbot.iter_participants(channel):
