@@ -102,13 +102,14 @@ async def generate_word_cloud_from_event(event) -> None:
     else:
         user = await msg.get_sender()
 
-    _, *rest = msg.text.split(" ")
+    _, *rest = msg.text.lower().split(" ")
+
+    if len(rest) > 1 and rest[1] == "full":
+        # 生成所有用户的词云
+        user = None
 
     if not rest:
         days = "1"
-    elif len(rest) > 1 and rest[1].lower() == "full":
-        # 生成所有用户的词云
-        user = None
     else:
         days = rest[0]
 
