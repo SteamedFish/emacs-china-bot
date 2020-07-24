@@ -102,12 +102,14 @@ async def generate_word_cloud_from_event(event) -> None:
     else:
         user = await msg.get_sender()
 
-    if msg.text.lower().startswith("/wordcloud@emacs_china_rss_bot"):
-        prefixlen = len("/wordcloud@emacs_china_rss_bot")
-    else:
-        prefixlen = len("/wordcloud")
+    days, *rest = msg.text.split(" ")
+
+    if rest and rest[0].lower() == "full":
+        # 生成所有用户的词云
+        user = None
+
     try:
-        days = int(msg.text.lower()[prefixlen:])
+        days = int(days)
     except ValueError:
         days = 1
 
