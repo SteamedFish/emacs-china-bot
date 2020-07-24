@@ -96,17 +96,19 @@ async def generate_word_cloud_from_event(event) -> None:
     if (not msg.text) or (not msg.text.lower().startswith("/wordcloud")):
         return
     to_chat = await event.get_chat()
-    if msg.is_reply:
-        reply = await msg.get_reply_message()
-        user = await reply.get_sender()
-    else:
-        user = await msg.get_sender()
 
     _, *rest = msg.text.lower().split(" ")
 
     if len(rest) > 1 and rest[1] == "full":
         # 生成所有用户的词云
         user = None
+    elif msg.is_reply:
+        # 生成被回复用户的
+        reply = await msg.get_reply_message()
+        user = await reply.get_sender()
+    else:
+        # 生成发送者的
+        user = await msg.get_sender()
 
     if not rest:
         days = "1"
