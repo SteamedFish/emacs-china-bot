@@ -60,17 +60,18 @@ async def generate_word_cloud(
                 if word.lower() not in stop_words:
                     words[word.lower()] += 1
 
-    image = (
-        WordCloud(
-            font_path="/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
-            width=800,
-            height=400,
+    if words:
+        image = (
+            WordCloud(
+                font_path="/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+                width=800,
+                height=400,
+            )
+            .generate_from_frequencies(words)
+            .to_image()
         )
-        .generate_from_frequencies(words)
-        .to_image()
-    )
-    stream = io.BytesIO()
-    image.save(stream, "PNG")
+        stream = io.BytesIO()
+        image.save(stream, "PNG")
 
     await userbot.send_message(
         channel,
@@ -78,7 +79,7 @@ async def generate_word_cloud(
         f"{'' if from_user is None else utils.get_display_name(from_user)}"
         f" 从 {from_time.isoformat(sep=' ',timespec='seconds')} 到 "
         f"{end_time.isoformat(sep=' ',timespec='seconds')} 的消息词云",
-        file=stream.getvalue(),
+        file=(stream.getvalue() if words else None),
     )
 
 
