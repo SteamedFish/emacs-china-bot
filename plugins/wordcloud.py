@@ -106,15 +106,6 @@ async def generate_word_cloud_from_event(event) -> None:
     logger.info("终于生成出来了")
 
 
-@aiocron.crontab("0 0 * * *")
-async def generate_word_cloud_for_channels_daily() -> None:
-    channels = ["@emacs_zh", "@keyboard_cn"]
-    from_time = datetime.now(tzlocal()) - timedelta(days=1)
-    end_time = datetime.now(tzlocal())
-    for channel in channels:
-        await generate_word_cloud(channel, None, from_time, end_time)
-
-
 @aiocron.crontab("0 0 * * 1")
 async def generate_word_cloud_for_channels_weekly() -> None:
     channels = ["@emacs_zh", "@keyboard_cn"]
