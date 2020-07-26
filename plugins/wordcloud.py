@@ -17,11 +17,13 @@ from wordcloud import WordCloud
 with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
     stop_words = set(map(str.strip, map(str.lower, file.read().splitlines())))
 
+
 @alru_cache(None)
 async def isbot(userid: int) -> bool:
     # get_entity 操作比较耗时，独立出来做个 cache
     user = await userbot.get_entity(userid)
     return user.bot
+
 
 async def generate_word_cloud(
     channel: hints.EntityLike,
