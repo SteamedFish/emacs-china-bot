@@ -4,7 +4,7 @@
 from collections import defaultdict
 from datetime import datetime, timedelta
 
-from telethon import TelegramClient, errors, events, hints, utils
+from telethon import events, hints, utils
 
 import aiocron
 import jieba
