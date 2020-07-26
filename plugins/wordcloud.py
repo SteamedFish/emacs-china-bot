@@ -81,6 +81,7 @@ async def generate_word_cloud(
 @userbot.on(events.NewMessage(pattern="/wordcloud"))
 async def generate_word_cloud_from_event(event) -> None:
     """generate word cloud based on event."""
+    defaultdays = "30"
     msg = event.message
     if (not msg.text) or (not msg.text.lower().startswith("/wordcloud")):
         return
@@ -100,14 +101,14 @@ async def generate_word_cloud_from_event(event) -> None:
         user = await msg.get_sender()
 
     if not rest:
-        days = "30"
+        days = defaultdays
     else:
         days = rest[0]
 
     try:
         days = int(days)
     except ValueError:
-        days = 30
+        days = int(defaultdays)
 
     await generate_word_cloud(
         to_chat,
