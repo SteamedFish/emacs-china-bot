@@ -43,7 +43,9 @@ async def generate_word_cloud(
     ):
         if msg.date < from_time:
             break
-        if msg.text and msg.text.startswith("/wordcloud"):
+        if not msg.text:
+            continue
+        if msg.text.startswith("/wordcloud"):
             # 忽略命令消息
             continue
         if me.id == msg.from_id and msg.text.endswith("的消息词云"):
@@ -53,10 +55,9 @@ async def generate_word_cloud(
         if fromuserisbot:
             # ignore messages from bot
             continue
-        if msg.text:
-            for word in jieba.cut(msg.text):
-                if word.lower() not in stop_words:
-                    words[word.lower()] += 1
+        for word in jieba.cut(msg.text):
+            if word.lower() not in stop_words:
+                words[word.lower()] += 1
 
     if words:
         image = (
