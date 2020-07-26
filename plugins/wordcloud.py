@@ -16,7 +16,7 @@ with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
     stop_words = set(map(str.strip, map(str.lower, file.read().splitlines())))
 
 
-async def generate_wordcloud_from_channel(
+async def generate_word_cloud(
     self,
     channel: hints.EntityLike,
     from_user: hints.EntityLike,
