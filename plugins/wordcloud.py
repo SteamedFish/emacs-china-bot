@@ -43,6 +43,9 @@ async def generate_word_cloud(
     ):
         if msg.date < from_time:
             break
+        if msg.text.startswith("/wordcloud"):
+            # 忽略命令消息
+            continue
         if me.id == msg.from_id and msg.text.endswith("的消息词云"):
             # 忽略之前自己发送的词云消息
             continue
