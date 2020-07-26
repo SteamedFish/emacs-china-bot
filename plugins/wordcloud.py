@@ -98,14 +98,14 @@ async def generate_word_cloud_from_event(event) -> None:
         user = await msg.get_sender()
 
     if not rest:
-        days = "1"
+        days = "30"
     else:
         days = rest[0]
 
     try:
         days = int(days)
     except ValueError:
-        days = 1
+        days = 30
 
     await generate_word_cloud(
         to_chat,
