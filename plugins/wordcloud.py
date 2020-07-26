@@ -43,7 +43,7 @@ async def generate_word_cloud(
             continue
         if msg.text:
             for word in jieba.cut(msg.text):
-                if word.lower() not in self.stop_words:
+                if word.lower() not in stop_words:
                     words[word.lower()] += 1
 
     if words:
