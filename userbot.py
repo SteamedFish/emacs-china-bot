@@ -53,8 +53,6 @@ class tgbot:
             self.bots[botname] = TelegramClient(
                 botname, self.api_id, self.api_hash
             ).start(bot_token=bot_token)
-        print(self.bots['emacs-china'])
-        print(self.userbot)
 
     def load_plugins(self) -> None:
         """load all files from plugins dir."""
@@ -87,7 +85,6 @@ class tgbot:
     def run(self):
         """run the bot."""
         self.userbot.run_until_disconnected()
-
 
 
 def main():
