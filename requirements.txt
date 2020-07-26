@@ -1,5 +1,6 @@
 Telethon
 requests
 aiocron
+async_lru
 jieba
 python_dateutil

@@ -9,6 +9,7 @@ from telethon import events, hints, utils
 
 import aiocron
 import jieba
+from async_lru import alru_cache
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
 from wordcloud import WordCloud
@@ -16,6 +17,11 @@ from wordcloud import WordCloud
 with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
     stop_words = set(map(str.strip, map(str.lower, file.read().splitlines())))
 
+@alru_cache(None)
+async def isbot(userid: int) -> bool:
+    # get_entity 操作比较耗时，独立出来做个 cache
+    user = await userbot.get_entity(userid)
+    return user.bot
 
 async def generate_word_cloud(
     channel: hints.EntityLike,
@@ -28,18 +34,18 @@ async def generate_word_cloud(
     logger.info("开始生成词云…")
 
     words = defaultdict(int)
+    me = await userbot.get_me()
 
     async for msg in userbot.iter_messages(
         channel, from_user=from_user, offset_date=end_time
     ):
         if msg.date < from_time:
             break
-        # TODO: 每次都获取一个 get_entity 是特别慢的，应有缓存
-        fromuser = await userbot.get_entity(msg.from_id)
-        if fromuser.is_self and msg.text.endswith("的消息词云"):
+        if me.id == msg.from_id and msg.text.endswith("的消息词云"):
             # 忽略之前自己发送的词云消息
             continue
-        if fromuser.bot:
+        fromuserisbot = await isbot(msg.from_id)
+        if fromuserisbot:
             # ignore messages from bot
             continue
         if msg.text:
