@@ -17,7 +17,6 @@ with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
 
 
 async def generate_word_cloud(
-    self,
     channel: hints.EntityLike,
     from_user: hints.EntityLike,
     from_time: datetime,
