@@ -15,12 +15,13 @@ from wordcloud import WordCloud
 with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
     stop_words = set(map(str.strip, map(str.lower, file.read().splitlines())))
 
+
 async def generate_wordcloud_from_channel(
-        self,
-        channel: hints.EntityLike,
-        from_user: hints.EntityLike,
-        from_time: datetime,
-        end_time: datetime
+    self,
+    channel: hints.EntityLike,
+    from_user: hints.EntityLike,
+    from_time: datetime,
+    end_time: datetime,
 ) -> None:
     """从 channel 生成词云并发送."""
 
@@ -66,7 +67,8 @@ async def generate_wordcloud_from_channel(
         f" 从 {from_time.isoformat(sep=' ',timespec='seconds')} 到 "
         f"{end_time.isoformat(sep=' ',timespec='seconds')} 的消息词云",
         file=(stream.getvalue() if words else None),
-       )
+    )
+
 
 @userbot.on(events.NewMessage(pattern="/wordcloud"))
 async def generate_word_cloud_from_event(event) -> None:
