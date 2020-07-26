@@ -1,191 +1,101 @@
 #!/usr/bin/env python3
 
-"""telegram userbot."""
+"""telegram user bot."""
 
-import configparser
-import io
-from collections import defaultdict
-from datetime import datetime, timedelta
+import importlib
+import logging
+import sys
+from configparser import ConfigParser
+from os import listdir, path
 
-import aiocron
-import jieba
-from dateutil.relativedelta import relativedelta
-from dateutil.tz import tzlocal
-from telethon import TelegramClient, events, utils, hints, errors
-from wordcloud import WordCloud
-
-config = configparser.ConfigParser()
-config.read("config.ini")
-if "SteamedFish" in config:
-    api_id = config["SteamedFish"]["api_id"]
-    api_hash = config["SteamedFish"]["api_hash"]
-if "emacs-china" in config:
-    bot_token = config["emacs-china"]["token"]
-
-userbot = TelegramClient("SteamedFish", api_id, api_hash).start()
-rssbot = TelegramClient("rssbot", api_id, api_hash).start(bot_token=bot_token)
-
-with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
-    stop_words = set(map(str.lower, file.read().splitlines()))
+from telethon import TelegramClient
 
 
-async def generate_word_cloud(
-    channel: hints.EntityLike,
-    from_user: hints.EntityLike,
-    from_time: datetime,
-    end_time: datetime,
-):
-    """生成词云."""
-    words = defaultdict(int)
+class tgbot:
+    """telegram user bot class."""
 
-    if isinstance(channel, str):
-        # 转换成 entity 才能有更多方法
-        channel = await userbot.get_entity(channel)
+    def __init__(self):
+        """init the bot.
 
-    async for msg in userbot.iter_messages(
-        channel, from_user=from_user, offset_date=end_time
-    ):
-        if msg.date < from_time:
-            break
-        fromuser = await userbot.get_entity(msg.from_id)
-        if fromuser.is_self and msg.text.endswith("的消息词云"):
-            # 忽略之前自己发送的词云消息
-            continue
-        if fromuser.bot:
-            # ignore messages from bot
-            continue
-        if msg.text:
-            for word in jieba.cut(msg.text):
-                if word.lower() not in stop_words:
-                    words[word.lower()] += 1
+        Including userbot and all the real bots.
+        """
 
-    if words:
-        image = (
-            WordCloud(
-                font_path="/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
-                width=800,
-                height=400,
-            )
-            .generate_from_frequencies(words)
-            .to_image()
-        )
-        stream = io.BytesIO()
-        image.save(stream, "PNG")
+        self.logger = logging.getLogger("userbot")
+        config = ConfigParser()
+        config.read(path.join(path.dirname(__file__), "config.ini"))
 
-    await userbot.send_message(
-        channel,
-        f"{utils.get_display_name(channel)} 频道 "
-        f"{'' if from_user is None else utils.get_display_name(from_user)}"
-        f" 从 {from_time.isoformat(sep=' ',timespec='seconds')} 到 "
-        f"{end_time.isoformat(sep=' ',timespec='seconds')} 的消息词云",
-        file=(stream.getvalue() if words else None),
-    )
+        bots = []
+        for configsection in config:
+            if (
+                "api_id" in config[configsection]
+                and "api_hash" in config[configsection]
+            ):
+                self.api_id = config[configsection]["api_id"]
+                self.api_hash = config[configsection]["api_hash"]
+                self.name = configsection
+            elif "token" in config[configsection]:
+                bot_token = config[configsection]["token"]
+                bots.append((configsection, bot_token))
+            elif configsection == "DEFAULT":
+                continue
+            else:
+                self.logger.warning(f"Invalid configration in {configsection}")
 
+        self.bots = {}
+        try:
+            client = TelegramClient(self.name, self.api_id, self.api_hash)
+        except (NameError, AttributeError):
+            raise ValueError("Invalid configration: need api_id and api_hash")
+        self.logger.info(f"Starting userbot {self.name}")
+        self.userbot = client.start()
+        for botname, bot_token in bots:
+            self.logger.info(f"Starting bot {botname}")
+            self.bots[botname] = TelegramClient(
+                botname, self.api_id, self.api_hash
+            ).start(bot_token=bot_token)
+        print(self.bots['emacs-china'])
+        print(self.userbot)
 
-@rssbot.on(events.NewMessage(pattern="/start"))
-async def start(event):
-    """Send a message when the command /start is issued."""
-    await event.respond("不许瞎撩 bot!")
-    raise events.StopPropagation
+    def load_plugins(self) -> None:
+        """load all files from plugins dir."""
+        pluginpath = path.join(path.dirname(__file__), "plugins")
+        for pluginfile in listdir(pluginpath):
+            if pluginfile.endswith(".py"):
+                filename = path.join(path.dirname(__file__), "plugins", pluginfile)
+                self.load_plugin_from_file(filename)
 
+    def load_plugin_from_file(self, filepath: str) -> None:
+        """load file as plugin."""
 
-@userbot.on(events.NewMessage(pattern="/wordcloud"))
-async def generate_word_cloud_from_event(event) -> None:
-    """generate word cloud based on event."""
-    msg = event.message
-    if (not msg.text) or (not msg.text.lower().startswith("/wordcloud")):
-        return
-    to_chat = await event.get_chat()
+        filename, _ = path.splitext(path.basename(filepath))
+        modulename = f"userbot_module_{filename}"
+        spec = importlib.util.spec_from_file_location(modulename, filepath)
+        module = importlib.util.module_from_spec(spec)
 
-    _, *rest = msg.text.lower().split(" ")
+        # 给 plugin 传递这些对象
+        module.userbot = self.userbot
+        module.bots = self.bots
+        module.logger = self.logger
 
-    if len(rest) > 1 and rest[1] == "full":
-        # 生成所有用户的词云
-        user = None
-    elif msg.is_reply:
-        # 生成被回复用户的
-        reply = await msg.get_reply_message()
-        user = await reply.get_sender()
-    else:
-        # 生成发送者的
-        user = await msg.get_sender()
+        sys.modules[modulename] = module
+        try:
+            spec.loader.exec_module(module)
+        except Exception as e:
+            self.logger.error(f"load plugin {filepath} error {e}")
+        self.logger.info(f"loaded plugin {filepath} as module {modulename}")
 
-    if not rest:
-        days = "1"
-    else:
-        days = rest[0]
+    def run(self):
+        """run the bot."""
+        self.userbot.run_until_disconnected()
 
-    try:
-        days = int(days)
-    except ValueError:
-        days = 1
-
-    await generate_word_cloud(
-        to_chat,
-        user,
-        datetime.now(tzlocal()) - timedelta(days=days),
-        datetime.now(tzlocal()),
-    )
-
-
-@aiocron.crontab("0 0 * * *")
-async def generate_word_cloud_for_channels_daily() -> None:
-    channels = ["@emacs_zh", "@keyboard_cn"]
-    from_time = datetime.now(tzlocal()) - timedelta(days=1)
-    end_time = datetime.now(tzlocal())
-    for channel in channels:
-        await generate_word_cloud(channel, None, from_time, end_time)
-
-
-@aiocron.crontab("0 0 * * 1")
-async def generate_word_cloud_for_channels_weekly() -> None:
-    channels = ["@emacs_zh", "@keyboard_cn"]
-    from_time = datetime.now(tzlocal()) - timedelta(weeks=1)
-    end_time = datetime.now(tzlocal())
-    for channel in channels:
-        await generate_word_cloud(channel, None, from_time, end_time)
-
-
-@aiocron.crontab("0 0 1 * *")
-async def generate_word_cloud_for_channels_monthly() -> None:
-    channels = ["@emacs_zh", "@keyboard_cn"]
-    from_time = datetime.now(tzlocal()) - relativedelta(months=1)
-    end_time = datetime.now(tzlocal())
-    for channel in channels:
-        await generate_word_cloud(channel, None, from_time, end_time)
-
-
-@aiocron.crontab("0 0 1 1 *")
-async def generate_word_cloud_for_channels_yealy() -> None:
-    channels = ["@emacs_zh", "@keyboard_cn"]
-    from_time = datetime.now(tzlocal()) - relativedelta(years=1)
-    end_time = datetime.now(tzlocal())
-    for channel in channels:
-        await generate_word_cloud(channel, None, from_time, end_time)
-
-
-@userbot.on(events.ChatAction(chats="@emacszh"))
-async def remove_join_messages(event) -> None:
-    """remove messages of join."""
-    if event.user_joined:
-        await event.delete()
-
-
-@aiocron.crontab("* 2 * * *")
-async def remove_deleted_account(channel: str = "@emacszh") -> None:
-    """remove all deleted account from channel everyday."""
-    async for user in userbot.iter_participants(channel):
-        if user.deleted:
-            try:
-                await userbot.kick_participant(channel, user)
-            except errors.rpcerrorlist.UserAdminInvalidError:
-                # 群主踢不掉
-                pass
 
 
 def main():
-    userbot.run_until_disconnected()
+    bot = tgbot()
+    bot.load_plugins()
+    bot.run()
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

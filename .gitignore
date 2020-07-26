@@ -1,8 +1,6 @@
 config.ini
-SteamedFish.session
-SteamedFish.session-journal
-rssbot.session
-rssbot.session-journal
+*.session
+*.session-journal
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
