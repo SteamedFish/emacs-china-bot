@@ -48,7 +48,9 @@ async def generate_word_cloud(
         if msg.text.startswith("/wordcloud"):
             # 忽略命令消息
             continue
-        if me.id == msg.from_id and msg.text.endswith("的消息词云"):
+        if me.id == msg.from_id and (
+            msg.text.endswith("的消息词云") or msg.text.startswith("发送 /wordcloud")
+        ):
             # 忽略之前自己发送的词云消息
             continue
         fromuserisbot = await isbot(msg.from_id)
@@ -82,10 +84,20 @@ async def generate_word_cloud(
     )
 
 
+async def send_help(event) -> None:
+    """send /wordcloud command help."""
+    await event.reply(
+        "发送 /wordcloud + 天数，查看自己的消息词云。\n"
+        "回复 /wordcloud + 天数，查看别人的消息词云。\n"
+        "发送 /wordcloud + 天数 + full，查看所有人的消息词云。\n"
+        "天数必须是 float 类型，大于 0，小于等于 4000。\n"
+        "例如： /wordcloud 7"
+    )
+
+
 @userbot.on(events.NewMessage(pattern="/wordcloud"))
 async def generate_word_cloud_from_event(event) -> None:
     """generate word cloud based on event."""
-    defaultdays = "30"
     msg = event.message
     if (not msg.text) or (not msg.text.lower().startswith("/wordcloud")):
         return
@@ -93,9 +105,17 @@ async def generate_word_cloud_from_event(event) -> None:
 
     _, *rest = msg.text.lower().split(" ")
 
-    if len(rest) > 1 and rest[1] == "full":
-        # 生成所有用户的词云
-        user = None
+    if (not rest) or (len(rest) > 2):
+        await send_help(event)
+        return
+
+    if len(rest) == 2:
+        if rest[1] == "full":
+            # 生成所有用户的词云
+            user = None
+        else:
+            await send_help(event)
+            return
     elif msg.is_reply:
         # 生成被回复用户的
         reply = await msg.get_reply_message()
@@ -104,15 +124,16 @@ async def generate_word_cloud_from_event(event) -> None:
         # 生成发送者的
         user = await msg.get_sender()
 
-    if not rest:
-        days = defaultdays
-    else:
-        days = rest[0]
-
+    days = rest[0]
     try:
-        days = int(days)
+        days = float(days)
     except ValueError:
-        days = int(defaultdays)
+        await send_help(event)
+        return
+
+    if days <= 0 or days > 4000:
+        await send_help(event)
+        return
 
     await generate_word_cloud(
         to_chat,
