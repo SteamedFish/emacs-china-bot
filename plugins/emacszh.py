@@ -9,7 +9,7 @@ async def remove_join_messages(event) -> None:
     """remove messages of join."""
     if event.user_joined:
         await event.delete()
-        logger.info(f"删了 {channel} 的入群消息")
+        logger.info(f"删了 {chats} 的入群消息")
 
 
 @aiocron.crontab("* 2 * * *")
