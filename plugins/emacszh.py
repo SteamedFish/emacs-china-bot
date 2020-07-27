@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import aiocron
-from telethon import events, utils
+from telethon import events, utils, errors
 
 
 @userbot.on(events.ChatAction(chats="@emacszh"))
