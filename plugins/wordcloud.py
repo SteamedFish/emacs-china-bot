@@ -90,7 +90,7 @@ async def send_help(event) -> None:
         "发送 /wordcloud + 天数，查看自己的消息词云。\n"
         "回复 /wordcloud + 天数，查看别人的消息词云。\n"
         "发送 /wordcloud + 天数 + full，查看所有人的消息词云。\n"
-        "天数必须是 float 类型，大于 0，小于等于 4000。\n"
+        "天数必须是 float 类型，大于 0，小于等于 999999999。\n"
         "例如： /wordcloud 7"
     )
 
@@ -131,7 +131,7 @@ async def generate_word_cloud_from_event(event) -> None:
         await send_help(event)
         return
 
-    if days <= 0 or days > 4000:
+    if days <= 0 or days > 999999999:
         await send_help(event)
         return
 
