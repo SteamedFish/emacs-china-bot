@@ -9,7 +9,6 @@ async def remove_join_messages(event) -> None:
     """remove messages of join."""
     if event.user_joined:
         await event.delete()
-        logger.info(f"删了 {chats} 的入群消息")
 
 
 @aiocron.crontab("* 2 * * *")
@@ -22,5 +21,3 @@ async def remove_deleted_account(channel: str = "@emacszh") -> None:
             except errors.rpcerrorlist.UserAdminInvalidError:
                 # 群主踢不掉
                 pass
-            else:
-                logger.info(f"踢了 {channel} 的 {utils.get_display_name(user)}")
