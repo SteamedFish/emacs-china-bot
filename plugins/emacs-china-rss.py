@@ -133,6 +133,6 @@ emacschina = EmacsChina()
 
 
 @aiocron.crontab("* * * * *")
-async def get_post_from_emacs_china(channel: str = "@steamedfish") -> None:
+async def get_post_from_emacs_china(channel: str = "@emacs_zh") -> None:
     for post in emacschina:
         await rssbot.send_message(channel, post)
