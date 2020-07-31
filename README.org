@@ -1,14 +1,12 @@
 #+TITLE: emacs-china userbot 机器人
 
-本机器人供 https://t.me/emacs_zh Emacs 中文群组使用。包括两个机器人：
+本机器人供 https://t.me/emacs_zh Emacs 中文群组使用。
 
-1. =userbot.py= 主机器人，有以下功能：
-   - 定期清理废弃老群的广告信息，踢掉广告用户
-   - 定期生成词云信息
-   - 用户可手工触发词云信息
-   - 管理 @toptoh_bot inline bot，用于反转消息
-2. =feed-parser.py= RSS 机器人，该机器人计划作为插件合并到主机器人中（未完成）。有以下功能：
-   - 跟踪 https://emacs-china.org/ 论坛的新帖子并发送到频道
+- 定期清理废弃老群的广告信息，踢掉广告用户
+- 定期生成词云信息
+- 用户可手工触发词云信息
+- 管理 @toptoh_bot inline bot，用于反转消息
+- 跟踪 https://emacs-china.org/ 论坛的新帖子并发送到频道
 
 
 用法：
