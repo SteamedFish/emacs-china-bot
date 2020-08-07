@@ -64,7 +64,7 @@ async def generate_word_cloud(
     if words:
         image = (
             WordCloud(
-                font_path="/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+                font_path="/usr/share/fonts/adobe-source-han-sans/SourceHanSansCN-Normal.otf",
                 width=800,
                 height=400,
             )
