@@ -37,7 +37,25 @@ async def generate_word_cloud(
     logger.info("开始生成词云…")
 
     stop_flags = set(
-        ["d", "f", "x", "p", "q", "nr", "uj", "ul", "ud", "r", "c", "xc", "m", "zg",]
+        [
+            "d",  # 副词
+            "f",  # 方位名词
+            "x",  # 标点符号
+            "p",  # 介词
+            "t",  # 时间
+            "q",  # 量词
+            "m",  # 数量词
+            "nr",  # 人名，你我他
+            "r",  # 代词
+            "c",  # 连词
+            "xc",  # 其他虚词
+            "zg",  # 文档没说，给出的词也没找到规律，但都不是想要的
+            # u 开头的都是助词，具体细分的分类文档没说
+            "uj",
+            "ug",
+            "ul",
+            "ud",
+        ]
     )
 
     words = defaultdict(int)
@@ -65,7 +83,7 @@ async def generate_word_cloud(
         words_cut = posseg.cut(msg.text, use_paddle=True)
         for word, flag in words_cut:
             word = word.lower().strip()
-            if (word not in stop_words) and (flag not in stop_flags):
+            if (word == "啊") or ((word not in stop_words) and (flag not in stop_flags)):
                 words[word] += 1
 
     if words:
