@@ -12,6 +12,7 @@ import jieba
 from async_lru import alru_cache
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
+from jieba import posseg
 from wordcloud import WordCloud
 
 with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
@@ -35,6 +36,10 @@ async def generate_word_cloud(
 
     logger.info("开始生成词云…")
 
+    stop_flags = set(
+        ["d", "f", "x", "p", "q", "nr", "uj", "ul", "ud", "r", "c", "xc", "m", "zg",]
+    )
+
     words = defaultdict(int)
     me = await userbot.get_me()
 
@@ -57,9 +62,11 @@ async def generate_word_cloud(
         if fromuserisbot:
             # ignore messages from bot
             continue
-        for word in jieba.cut(msg.text):
-            if word.lower() not in stop_words:
-                words[word.lower()] += 1
+        words_cut = posseg.cut(msg.text, use_paddle=True)
+        for word, flag in words_cut:
+            word = word.lower().strip()
+            if (word not in stop_words) and (flag not in stop_flags):
+                words[word] += 1
 
     if words:
         image = (
