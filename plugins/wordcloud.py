@@ -21,7 +21,7 @@ with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
 
 @alru_cache(None)
 async def isbot(userid: int) -> bool:
-    # get_entity 操作比较耗时，独立出来做个 cache
+    # get_entity 操作比较多，存在大量重复，导致比较耗时，做个 cache
     user = await userbot.get_entity(userid)
     return user.bot
 
