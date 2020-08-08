@@ -84,7 +84,7 @@ async def generate_word_cloud(
         words_cut = posseg.cut(msg.text, use_paddle=True)
         for word, flag in words_cut:
             word = word.lower().strip()
-            if (word == "啊") or ((word not in stop_words) and (flag not in stop_flags)):
+            if (word == "哇") or ((word not in stop_words) and (flag not in stop_flags)):
                 words[word] += 1
 
     if words:
