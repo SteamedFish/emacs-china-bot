@@ -52,4 +52,4 @@ emacsversion = EmacsVersion()
 async def check_new_emacs_version(channel: str = "@emacs_zh") -> None:
     if emacsversion.check_new_version():
         versioninfo = emacsversion.version
-        await rssbot.send_message(channel, f"发现 Emacs 新版本：{versioninfo.public}")
+        await rssbot.send_message(channel, f"普天同庆！！！发现 Emacs 新版本：{versioninfo.public}")
