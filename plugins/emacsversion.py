@@ -40,7 +40,7 @@ class EmacsVersion:
     def check_new_version(self) -> bool:
         current_version = self.get_current_version()
         if current_version > self.version:
-            self.versin = current_version
+            self.version = current_version
             return True
         return False
 
