@@ -48,7 +48,7 @@ class EmacsVersion:
 emacsversion = EmacsVersion()
 
 
-@aiocron.crontab("* * * * *")
+@aiocron.crontab("13 * * * *")
 async def check_new_emacs_version(channel: str = "@emacs_zh") -> None:
     if emacsversion.check_new_version():
         versioninfo = emacsversion.version
