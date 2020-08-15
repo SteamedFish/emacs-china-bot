@@ -63,6 +63,11 @@ async def generate_word_cloud(
     words = defaultdict(int)
     me = await userbot.get_me()
 
+    if isinstance(channel, str):
+        # 转换成 entity 才能有更多方法
+        # 不然不能使用 utils.get_display_name(channel)
+        channel = await userbot.get_entity(channel)
+
     async for msg in userbot.iter_messages(
         channel, from_user=from_user, offset_date=end_time
     ):
