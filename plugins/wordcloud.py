@@ -2,16 +2,17 @@
 
 
 import io
+import typing
 from collections import defaultdict
 from datetime import datetime, timedelta
-
-from telethon import events, hints, utils
 
 import aiocron
 from async_lru import alru_cache
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
 from jieba import posseg
+from telethon import events, hints, types, utils
+
 from wordcloud import WordCloud
 
 with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
@@ -30,6 +31,7 @@ async def generate_word_cloud(
     from_user: hints.EntityLike,
     from_time: datetime,
     end_time: datetime,
+    reply_to: typing.Union[int, types.Message] = None,
 ) -> None:
     """从 channel 生成词云并发送."""
 
@@ -112,6 +114,7 @@ async def generate_word_cloud(
         f" 从 {from_time.isoformat(sep=' ',timespec='seconds')} 到 "
         f"{end_time.isoformat(sep=' ',timespec='seconds')} 的消息词云",
         file=(stream.getvalue() if words else None),
+        reply_to=reply_to,
     )
 
 
@@ -171,6 +174,7 @@ async def generate_word_cloud_from_event(event) -> None:
         user,
         datetime.now(tzlocal()) - timedelta(days=days),
         datetime.now(tzlocal()),
+        event.message,
     )
     logger.info("终于生成出来了")
 
