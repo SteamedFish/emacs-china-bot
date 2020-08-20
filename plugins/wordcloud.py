@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from telethon import events, hints, utils
 
 import aiocron
-import jieba
 from async_lru import alru_cache
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
