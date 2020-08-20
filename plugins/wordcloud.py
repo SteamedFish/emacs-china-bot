@@ -11,8 +11,7 @@ from async_lru import alru_cache
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
 from jieba import posseg
-from telethon import events, hints, types, utils
-
+from telethon import events, hints, utils
 from wordcloud import WordCloud
 
 with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
@@ -20,7 +19,7 @@ with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
 
 
 @alru_cache(None)
-async def isbot(userid: int) -> bool:
+async def isbot(userid: hints.PeerID) -> bool:
     # get_entity 操作比较多，存在大量重复，导致比较耗时，做个 cache
     user = await userbot.get_entity(userid)
     return user.bot
@@ -29,9 +28,9 @@ async def isbot(userid: int) -> bool:
 async def generate_word_cloud(
     channel: hints.EntityLike,
     from_user: hints.EntityLike,
-    from_time: datetime,
-    end_time: datetime,
-    reply_to: typing.Union[int, types.Message] = None,
+    from_time: hints.DateLike,
+    end_time: hints.DateLike,
+    reply_to: hints.MessageIDLike = None,
 ) -> None:
     """从 channel 生成词云并发送."""
 
