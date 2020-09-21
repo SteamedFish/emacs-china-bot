@@ -1,5 +1,6 @@
 Telethon
 requests
+httpx
 aiocron
 async_lru
 jieba

@@ -4,7 +4,7 @@ import datetime
 import socket
 
 import aiocron
-import requests
+import httpx
 from dateutil.parser import parse
 from dateutil.tz import tzlocal
 from telethon import events
@@ -35,17 +35,14 @@ class EmacsChina:
         self.topicsurl = f"{self.url}/latest.json"
         self.categoriesurl = f"{self.url}/categories.json"
 
-        socket.setdefaulttimeout(self.timeout)
-
-    def category(self, id: int) -> str:
+    async def category(self, id: int) -> str:
         """通过 topic ID，获取帖子的分区名称."""
         # TODO: 这个很少变化，应该做个 cache 避免频繁请求服务器
-        socket.setdefaulttimeout(self.timeout)
-        r = requests.get(self.categoriesurl)
-        try:
-            r.raise_for_status()
-        except requests.HTTPError as e:
-            return str(e)
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            try:
+                r = await client.get(self.categoriesurl)
+            except httpx.HTTPStatusError as e:
+                return str(e)
         try:
             categories = r.json()
         except ValueError as e:
@@ -57,14 +54,13 @@ class EmacsChina:
 
         return "NULL"
 
-    def author(self, id: int) -> str:
+    async def author(self, id: int) -> str:
         """通过 post ID，获取作者信息."""
-        socket.setdefaulttimeout(self.timeout)
-        r = requests.get(f"{self.url}/posts/{id}.json")
-        try:
-            r.raise_for_status()
-        except requests.HTTPError as e:
-            return str(e)
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            try:
+                r = await client.get(f"{self.url}/posts/{id}.json")
+            except httpx.HTTPStatusError as e:
+                return str(e)
         try:
             author = r.json()
         except ValueError as e:
@@ -72,14 +68,13 @@ class EmacsChina:
 
         return f'{author["username"]}（{author["display_username"]}）'
 
-    def firstpost(self, id: int) -> int:
+    async def firstpost(self, id: int) -> int:
         """通过 topic ID，获取第一个 post 的信息."""
-        socket.setdefaulttimeout(self.timeout)
-        r = requests.get(f"{self.url}/t/{id}/posts.json")
-        try:
-            r.raise_for_status()
-        except requests.HTTPError:
-            return 0
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            try:
+                r = await client.get(f"{self.url}/t/{id}/posts.json")
+            except httpx.HTTPStatusError:
+                return 0
         try:
             post = r.json()
         except ValueError:
@@ -87,16 +82,15 @@ class EmacsChina:
 
         return int(post["post_stream"]["posts"][0]["id"])
 
-    def __iter__(self):
+    async def __aiter__(self):
         """返回新帖子."""
 
-        socket.setdefaulttimeout(self.timeout)
-        r = requests.get(self.topicsurl)
-        try:
-            r.raise_for_status()
-        except requests.HTTPError as e:
-            logger.info(str(e))
-            raise StopIteration
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            try:
+                r = await client.get(self.topicsurl)
+            except httpx.HTTPStatusError as e:
+                logger.info(str(e))
+                raise StopIteration
         try:
             topics = r.json()["topic_list"]["topics"]
         except ValueError as e:
@@ -109,22 +103,26 @@ class EmacsChina:
             createtime = parse(topic["created_at"])
             if createtime > self.since:
                 if topic["id"] not in ids:
-                    yield self.parse_topic(topic)
+                    result = await self.parse_topic(topic)
+                    yield result
                     ids.append(topic["id"])
                 if createtime > max_createtime:
                     max_createtime = createtime
         if max_createtime > self.since:
             self.since = max_createtime
 
-        return self
+        return
 
-    def parse_topic(self, topic):
+    async def parse_topic(self, topic):
         """Parse topic."""
+        firstpost = await self.firstpost(topic["id"])
+        author = await self.author(firstpost)
+        category = await self.category(topic["category_id"])
         result = (
             f"论坛新帖子："
             f'{self.url}/t/{topic["slug"]}/{topic["id"]}\n'
-            f'作者：{self.author(self.firstpost(topic["id"]))}\n'
-            f'分区：{self.category(topic["category_id"])}\n'
+            f"作者：{author}\n"
+            f"分区：{category}\n"
         )
         return result
 
@@ -134,5 +132,5 @@ emacschina = EmacsChina()
 
 @aiocron.crontab("* * * * *")
 async def get_post_from_emacs_china(channel: str = "@emacs_zh") -> None:
-    for post in emacschina:
+    async for post in emacschina:
         await rssbot.send_message(channel, post)
