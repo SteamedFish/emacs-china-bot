@@ -7,8 +7,30 @@ import httpx
 from dateutil.parser import parse
 from dateutil.tz import tzlocal
 from telethon import events
+from tenacity import (
+    AsyncRetrying,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_random,
+)
 
 rssbot = bots["emacs-china"]
+
+
+async def fetch_url(url: str, timeout: int = 5, retry: int = 5):
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        try:
+            async for attempt in AsyncRetrying(
+                stop=stop_after_attempt(5),
+                reraise=True,
+                retry=retry_if_exception_type(httpx.ConnectTimeout),
+                wait=wait_random(min=timeout, max=timeout * 10),
+            ):
+                with attempt:
+                    r = await client.get(url)
+        except httpx.HTTPStatusError as e:
+            return str(e)
+    return r.json()
 
 
 @rssbot.on(events.NewMessage(pattern="/start"))
@@ -37,13 +59,8 @@ class EmacsChina:
     async def category(self, id: int) -> str:
         """通过 topic ID，获取帖子的分区名称."""
         # TODO: 这个很少变化，应该做个 cache 避免频繁请求服务器
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            try:
-                r = await client.get(self.categoriesurl)
-            except httpx.HTTPStatusError as e:
-                return str(e)
         try:
-            categories = r.json()
+            categories = await fetch_url(url=self.categoriesurl, timeout=self.timeout)
         except ValueError as e:
             return str(e)
 
@@ -55,12 +72,10 @@ class EmacsChina:
 
     async def author(self, id: int) -> str:
         """通过 post ID，获取作者信息."""
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            try:
-                r = await client.get(f"{self.url}/posts/{id}.json")
-            except httpx.HTTPStatusError as e:
-                return str(e)
         try:
+            author = await fetch_url(
+                url=f"{self.url}/posts/{id}.json", timeout=self.timeout
+            )
             author = r.json()
         except ValueError as e:
             return str(e)
@@ -69,13 +84,10 @@ class EmacsChina:
 
     async def firstpost(self, id: int) -> int:
         """通过 topic ID，获取第一个 post 的信息."""
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            try:
-                r = await client.get(f"{self.url}/t/{id}/posts.json")
-            except httpx.HTTPStatusError:
-                return 0
         try:
-            post = r.json()
+            post = await fetch_url(
+                url=f"{self.url}/t/{id}/posts.json", timeout=self.timeout
+            )
         except ValueError:
             return 0
 
@@ -84,14 +96,9 @@ class EmacsChina:
     async def __aiter__(self):
         """返回新帖子."""
 
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            try:
-                r = await client.get(self.topicsurl)
-            except httpx.HTTPStatusError as e:
-                logger.info(str(e))
-                raise StopIteration
         try:
-            topics = r.json()["topic_list"]["topics"]
+            content = await fetch_url(url=self.topicsurl, timeout=self.timeout)
+            topics = content["topic_list"]["topics"]
         except ValueError as e:
             logger.info(str(e))
             raise StopIteration
@@ -100,6 +107,7 @@ class EmacsChina:
         ids = []
         for topic in topics:
             createtime = parse(topic["created_at"])
+            print(topic)
             if createtime > self.since:
                 if topic["id"] not in ids:
                     result = await self.parse_topic(topic)

@@ -1,7 +1,8 @@
 Telethon
-httpx
 aiocron
 async_lru
+httpx
 jieba
-python_dateutil
 packaging
+python_dateutil
+tenacity

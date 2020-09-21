@@ -5,6 +5,12 @@ import re
 import aiocron
 import httpx
 from packaging import version
+from tenacity import (
+    AsyncRetrying,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_random,
+)
 
 rssbot = bots["emacs-china"]
 
@@ -20,7 +26,14 @@ class EmacsVersion:
     async def get_current_version(self) -> version.Version:
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             try:
-                r = await client.get(self.checkurl)
+                async for attempt in AsyncRetrying(
+                    stop=stop_after_attempt(5),
+                    reraise=True,
+                    retry=retry_if_exception_type(httpx.ConnectTimeout),
+                    wait=wait_random(min=self.timeout, max=self.timeout * 10),
+                ):
+                    with attempt:
+                        r = await client.get(self.checkurl)
             except httpx.HTTPStatusError:
                 return None
         webpage = r.text
