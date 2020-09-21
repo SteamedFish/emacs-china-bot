@@ -107,7 +107,6 @@ class EmacsChina:
         ids = []
         for topic in topics:
             createtime = parse(topic["created_at"])
-            print(topic)
             if createtime > self.since:
                 if topic["id"] not in ids:
                     result = await self.parse_topic(topic)
