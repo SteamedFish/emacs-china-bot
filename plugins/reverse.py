@@ -8,7 +8,7 @@ reversebot = bots["reverse"]
 @reversebot.on(events.NewMessage(pattern="/start"))
 async def start(event):
     """Send a message when the command /start is issued."""
-    reply = await reverse_string("像火锅佬那样说话！")
+    reply = reverse_string("像火锅佬那样说话！")
     await event.respond(reply)
     raise events.StopPropagation
 
@@ -19,13 +19,13 @@ async def handler(event):
     if not event.text:
         return
     builder = event.builder
-    text = await reverse_string(event.text)
-    title = await reverse_string("像火锅佬那样说话！")
+    text = reverse_string(event.text)
+    title = reverse_string("像火锅佬那样说话！")
 
     await event.answer([builder.article(title, text=text)])
 
 
-async def reverse_string(string: str) -> str:
+def reverse_string(string: str) -> str:
     """reverse string."""
     trans = str.maketrans(
         {
