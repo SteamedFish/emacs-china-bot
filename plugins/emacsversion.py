@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
 import re
-import socket
 
 import aiocron
-import requests
+import httpx
 from packaging import version
 
 rssbot = bots["emacs-china"]
@@ -16,11 +15,15 @@ class EmacsVersion:
     def __init__(self, timeout: int = 10) -> None:
         self.checkurl = "http://ftp.gnu.org/gnu/emacs/"
         self.timeout = timeout
-        socket.setdefaulttimeout(self.timeout)
-        self.version = self.get_current_version()
+        self.version = None
 
-    def get_current_version(self) -> version.Version:
-        webpage = requests.get(self.checkurl).text
+    async def get_current_version(self) -> version.Version:
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            try:
+                r = await client.get(self.checkurl)
+            except httpx.HTTPStatusError:
+                return None
+        webpage = r.text
 
         # FIXME: this is a hardcode
         tarball_regex = re.compile(r"\bemacs-[0-9.]+\.tar\.[a-z]*\b")
@@ -37,10 +40,11 @@ class EmacsVersion:
                 currentversion = emacsversion
         return emacsversion
 
-    def check_new_version(self) -> bool:
-        current_version = self.get_current_version()
-        if current_version > self.version:
+    async def check_new_version(self) -> bool:
+        current_version = await self.get_current_version()
+        if self.version is None:
             self.version = current_version
+        elif current_version > self.version:
             return True
         return False
 
@@ -50,6 +54,6 @@ emacsversion = EmacsVersion()
 
 @aiocron.crontab("13 * * * *")
 async def check_new_emacs_version(channel: str = "@emacs_zh") -> None:
-    if emacsversion.check_new_version():
+    if await emacsversion.check_new_version():
         versioninfo = emacsversion.version
         await rssbot.send_message(channel, f"普天同庆！！！发现 Emacs 新版本：{versioninfo.public}")
