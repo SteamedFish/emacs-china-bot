@@ -76,7 +76,6 @@ class EmacsChina:
             author = await fetch_url(
                 url=f"{self.url}/posts/{id}.json", timeout=self.timeout
             )
-            author = r.json()
         except ValueError as e:
             return str(e)
 
