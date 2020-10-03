@@ -9,12 +9,14 @@ import aiocron
 from async_lru import alru_cache
 from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
-from jieba import posseg
+from jieba import load_userdict, posseg
 from telethon import events, hints, utils
 from wordcloud import WordCloud
 
 with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
     stop_words = set(map(str.strip, map(str.lower, file.read().splitlines())))
+
+load_userdict("userdict.txt")
 
 
 @alru_cache(None)
