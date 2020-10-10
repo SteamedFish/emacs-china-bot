@@ -63,4 +63,4 @@ def reverse_string(string: str) -> str:
         }
     )
 
-    return "".join(list(reversed(list(grapheme.graphemes(string))))).translate(trans)
+    return "".join(reversed(list(grapheme.graphemes(string)))).translate(trans)
