@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from telethon import events
+import grapheme
 
 reversebot = bots["reverse"]
 
@@ -62,4 +63,4 @@ def reverse_string(string: str) -> str:
         }
     )
 
-    return string[::-1].translate(trans)
+    return "".join(list(reversed(list(grapheme.graphemes(string))))).translate(trans)

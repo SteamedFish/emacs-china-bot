@@ -1,6 +1,7 @@
 Telethon
 aiocron
 async_lru
+grapheme
 httpx
 jieba
 packaging
