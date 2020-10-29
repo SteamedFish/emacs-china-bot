@@ -125,7 +125,10 @@ async def send_help(event) -> None:
         "回复 /wordcloud + 天数，查看别人的消息词云。\n"
         "发送 /wordcloud + 天数 + full，查看所有人的消息词云。\n"
         "天数必须是 float 类型，大于 0，小于等于 737644。\n"
-        "例如： /wordcloud 7"
+        "例如： /wordcloud 7\n"
+        "\n"
+        "项目源码： "
+        "https://github.com/SteamedFish/emacs-china-bot/blob/master/plugins/wordcloud.py"
     )
 
 
