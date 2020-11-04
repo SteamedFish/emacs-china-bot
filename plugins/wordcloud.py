@@ -136,7 +136,7 @@ async def generate_word_cloud(
         f"从 {from_time.isoformat(sep=' ',timespec='seconds')}\n"
         f"到 {end_time.isoformat(sep=' ',timespec='seconds')}\n"
         f"共 {total_messages} 条消息，"
-        f"其中有： "
+        f"其中： "
         f"{replied_messages} 条消息为回复， "
         f"{forwarded_messages} 条消息为转发， "
         f"{sticker_messages} 条消息为表情， "
