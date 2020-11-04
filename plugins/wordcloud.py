@@ -71,6 +71,7 @@ async def generate_word_cloud(
 
     # some counters
     total_messages = 0
+    replied_messages = 0
     forwarded_messages = 0
     sticker_messages = 0
     inline_messages = 0
@@ -85,6 +86,8 @@ async def generate_word_cloud(
         total_messages += 1
         if msg.forward:
             forwarded_messages += 1
+        if msg.is_reply:
+            replied_messages += 1
         if msg.sticker:
             sticker_messages += 1
         if msg.via_bot_id:
@@ -133,7 +136,9 @@ async def generate_word_cloud(
         f"从 {from_time.isoformat(sep=' ',timespec='seconds')}\n"
         f"到 {end_time.isoformat(sep=' ',timespec='seconds')}\n"
         f"共 {total_messages} 条消息，"
-        f"其中有 {forwarded_messages} 条消息为转发， "
+        f"其中有： "
+        f"{replied_messages} 条消息为回复， "
+        f"{forwarded_messages} 条消息为转发， "
         f"{sticker_messages} 条消息为表情， "
         f"{inline_messages} 条消息来自 inline bot",
         file=(stream.getvalue() if words else None),
