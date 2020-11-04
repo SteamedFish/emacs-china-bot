@@ -69,19 +69,35 @@ async def generate_word_cloud(
         # 不然不能使用 utils.get_display_name(channel)
         channel = await userbot.get_entity(channel)
 
+    # some counters
+    total_messages = 0
+    forwarded_messages = 0
+    sticker_messages = 0
+    inline_messages = 0
+
     logger.info(f"开始生成 {utils.get_display_name(channel)} 频道的词云")
     async for msg in userbot.iter_messages(
         channel, from_user=from_user, offset_date=end_time
     ):
         if msg.date < from_time:
             break
+
+        total_messages += 1
+        if msg.forward:
+            forwarded_messages += 1
+        if msg.sticker:
+            sticker_messages += 1
+        if msg.via_bot:
+            inline_messages += 1
+
         if not msg.text:
             continue
         if msg.text.startswith("/wordcloud"):
             # 忽略命令消息
             continue
         if me.id == msg.from_id and (
-            msg.text.endswith("的消息词云") or msg.text.startswith("发送 /wordcloud")
+            msg.text.startswith("消息词云机器鱼为您生成消息词云") or
+            msg.text.startswith("发送 /wordcloud")
         ):
             # 忽略之前自己发送的词云消息
             continue
@@ -111,10 +127,15 @@ async def generate_word_cloud(
     logger.info(f"终于生成好了 {utils.get_display_name(channel)} 频道的词云")
     await userbot.send_message(
         channel,
+        f"消息词云机器鱼为您生成消息词云\n"
         f"{utils.get_display_name(channel)} 频道 "
-        f"{'' if from_user is None else utils.get_display_name(from_user)}"
-        f" 从 {from_time.isoformat(sep=' ',timespec='seconds')} 到 "
-        f"{end_time.isoformat(sep=' ',timespec='seconds')} 的消息词云",
+        f"{'' if from_user is None else utils.get_display_name(from_user)}\n"
+        f"从 {from_time.isoformat(sep=' ',timespec='seconds')} 到 "
+        f"{end_time.isoformat(sep=' ',timespec='seconds')}\n"
+        f"共 {total_messages} 条消息，"
+        f"其中有 {forwarded_messages} 条消息为转发， "
+        f"{sticker_messages} 条消息为表情， "
+        f"{inline_messages} 条消息来自 inline bot",
         file=(stream.getvalue() if words else None),
         reply_to=reply_to,
     )
