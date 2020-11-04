@@ -165,7 +165,7 @@ async def send_help(event) -> None:
 
     await asyncio.sleep(60)
     try:
-        help_message.delete()
+        await help_message.delete()
     except:
         logger.info("删除帮助消息失败")
 
