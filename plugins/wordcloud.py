@@ -154,7 +154,7 @@ async def send_help(event) -> None:
         "回复 /wordcloud + 天数，查看别人的消息词云。\n"
         "发送 /wordcloud + 天数 + full，查看所有人的消息词云。\n"
         "\n"
-        "天数必须是 float 类型，大于 0，小于等于 737644。\n"
+        "天数必须是 float 类型。\n"
         "数字较大时，生成可能需要较长时间，请耐心等待。\n"
         "\n"
         "例如： /wordcloud 7\n"
@@ -206,14 +206,19 @@ async def generate_word_cloud_from_event(event) -> None:
         await send_help(event)
         return
 
-    if days <= 0 or days > 737644:
-        await send_help(event)
-        return
+    try:
+        starttime = datetime.now(tzlocal()) - timedelta(days=days)
+    except OverflowError:
+        # python 的时间只能在 1-9999 年之间
+        if days > 0:
+            starttime = datetime(1, 1, 1, tzinfo=tzlocal())
+        else:
+            starttime = datetime(9999, 12, 31, tzinfo=tzlocal())
 
     await generate_word_cloud(
         to_chat,
         user,
-        datetime.now(tzlocal()) - timedelta(days=days),
+        starttime,
         datetime.now(tzlocal()),
         event.message,
     )
