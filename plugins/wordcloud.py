@@ -105,10 +105,12 @@ async def generate_word_cloud(
         ):
             # 忽略之前自己发送的词云消息
             continue
-        fromuserisbot = await isbot(msg.from_id)
-        if fromuserisbot:
-            # ignore messages from bot
-            continue
+        # 频道消息没有 from_id
+        if msg.from_id:
+            fromuserisbot = await isbot(msg.from_id)
+            if fromuserisbot:
+                # ignore messages from bot
+                continue
         words_cut = posseg.cut(msg.text, use_paddle=True)
         for word, flag in words_cut:
             word = word.lower().strip()
