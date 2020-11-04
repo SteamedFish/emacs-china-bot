@@ -13,11 +13,6 @@ from jieba import load_userdict, posseg
 from telethon import events, hints, utils
 from wordcloud import WordCloud
 
-with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
-    stop_words = set(map(str.strip, map(str.lower, file.read().splitlines())))
-
-load_userdict("userdict.txt")
-
 
 @alru_cache(None)
 async def isbot(userid: hints.PeerID) -> bool:
@@ -34,6 +29,13 @@ async def generate_word_cloud(
     reply_to: hints.MessageIDLike = None,
 ) -> None:
     """从 channel 生成词云并发送."""
+
+    with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
+        stop_words = set(
+            map(str.strip,
+                map(str.lower, file.read().splitlines())))
+
+    load_userdict("userdict.txt")
 
     logger.info("开始生成词云…")
 
