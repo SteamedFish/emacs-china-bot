@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 
+import asyncio
 import io
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -148,7 +149,7 @@ async def generate_word_cloud(
 
 async def send_help(event) -> None:
     """send /wordcloud command help."""
-    await event.reply(
+    help_message = await event.reply(
         "发送 /wordcloud + 天数，查看自己的消息词云。\n"
         "回复 /wordcloud + 天数，查看别人的消息词云。\n"
         "发送 /wordcloud + 天数 + full，查看所有人的消息词云。\n"
@@ -161,6 +162,12 @@ async def send_help(event) -> None:
         "项目源码： "
         "https://github.com/SteamedFish/emacs-china-bot/blob/master/plugins/wordcloud.py"
     )
+
+    await asyncio.sleep(600)
+    try:
+        help_message.delete()
+    except:
+        logger.info("删除帮助消息失败")
 
 
 @userbot.on(events.NewMessage(pattern="/wordcloud"))
