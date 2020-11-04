@@ -163,7 +163,7 @@ async def send_help(event) -> None:
         "https://github.com/SteamedFish/emacs-china-bot/blob/master/plugins/wordcloud.py"
     )
 
-    await asyncio.sleep(600)
+    await asyncio.sleep(60)
     try:
         help_message.delete()
     except:
