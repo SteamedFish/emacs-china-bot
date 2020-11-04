@@ -87,7 +87,7 @@ async def generate_word_cloud(
             forwarded_messages += 1
         if msg.sticker:
             sticker_messages += 1
-        if msg.via_bot:
+        if msg.via_bot_id:
             inline_messages += 1
 
         if not msg.text:
