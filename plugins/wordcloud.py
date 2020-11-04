@@ -213,7 +213,7 @@ async def generate_word_cloud_from_event(event) -> None:
         if days > 0:
             starttime = datetime(1, 1, 1, tzinfo=tzlocal())
         else:
-            starttime = datetime(9999, 12, 31, tzinfo=tzlocal())
+            starttime = datetime(9999, 12, 31, 23, 59, 59, tzinfo=tzlocal())
 
     await generate_word_cloud(
         to_chat,
