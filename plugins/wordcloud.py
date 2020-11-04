@@ -35,10 +35,7 @@ async def generate_word_cloud(
         stop_words = set(
             map(str.strip,
                 map(str.lower, file.read().splitlines())))
-
     load_userdict("userdict.txt")
-
-    logger.info("开始生成词云…")
 
     stop_flags = set(
         [
@@ -72,6 +69,7 @@ async def generate_word_cloud(
         # 不然不能使用 utils.get_display_name(channel)
         channel = await userbot.get_entity(channel)
 
+    logger.info(f"开始生成 {utils.get_display_name(channel)} 频道的词云")
     async for msg in userbot.iter_messages(
         channel, from_user=from_user, offset_date=end_time
     ):
@@ -110,6 +108,7 @@ async def generate_word_cloud(
         stream = io.BytesIO()
         image.save(stream, "PNG")
 
+    logger.info(f"终于生成好了 {utils.get_display_name(channel)} 频道的词云")
     await userbot.send_message(
         channel,
         f"{utils.get_display_name(channel)} 频道 "
@@ -185,7 +184,6 @@ async def generate_word_cloud_from_event(event) -> None:
         datetime.now(tzlocal()),
         event.message,
     )
-    logger.info("终于生成出来了")
 
 
 @aiocron.crontab("0 0 * * 6")
