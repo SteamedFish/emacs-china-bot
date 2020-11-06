@@ -79,7 +79,7 @@ async def generate_word_cloud(
     if reply_to:
         temp_message = await userbot.send_message(
             channel,
-            f"正在为您生成词云，请耐心等待。当前已经处理了 {total_message} 条消息。",
+            f"正在为您生成词云，请耐心等待。当前已经处理了 {total_messages} 条消息。",
             reply_to=reply_to,
         )
 
@@ -103,7 +103,7 @@ async def generate_word_cloud(
         if reply_to and total_messages % 1000 == 0:
             try:
                 await temp_message.edit(
-                    text=f"正在为您生成词云，请耐心等待。当前已经处理了 {total_message} 条消息。"
+                    text=f"正在为您生成词云，请耐心等待。当前已经处理了 {total_messages} 条消息。"
                 )
             except:
                 pass
