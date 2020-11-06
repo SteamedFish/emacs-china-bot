@@ -33,7 +33,8 @@ async def generate_word_cloud(
     """从 channel 生成词云并发送."""
 
     with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
-        stop_words = set(map(str.strip, map(str.lower, file.read().splitlines())))
+        stop_words = set(
+            map(str.strip, map(str.lower, file.read().splitlines())))
     load_userdict("userdict.txt")
 
     stop_flags = set(
