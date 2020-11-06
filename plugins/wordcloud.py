@@ -77,9 +77,11 @@ async def generate_word_cloud(
     inline_messages = 0
 
     if reply_to:
+        # 进度消息
+        # 由于编辑消息会导致某些同步 bot 刷屏，前面加个 / 避免同步
         temp_message = await userbot.send_message(
             channel,
-            f"正在为您生成词云，请耐心等待。当前已经处理了 {total_messages} 条消息。",
+            f"/ 正在为您生成词云，请耐心等待。",
             reply_to=reply_to,
         )
 
@@ -100,10 +102,10 @@ async def generate_word_cloud(
         if msg.via_bot_id:
             inline_messages += 1
 
-        if reply_to and total_messages % 1000 == 0:
+        if reply_to and total_messages % 100 == 0:
             try:
                 await temp_message.edit(
-                    text=f"正在为您生成词云，请耐心等待。当前已经处理了 {total_messages} 条消息。"
+                    text=f"/ 正在为您生成词云，请耐心等待。当前已经处理了 {total_messages} 条消息。"
                 )
             except:
                 pass
