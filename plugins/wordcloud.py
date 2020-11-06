@@ -33,9 +33,7 @@ async def generate_word_cloud(
     """从 channel 生成词云并发送."""
 
     with open("StopWords-simple.txt", mode="r", encoding="utf-8") as file:
-        stop_words = set(
-            map(str.strip,
-                map(str.lower, file.read().splitlines())))
+        stop_words = set(map(str.strip, map(str.lower, file.read().splitlines())))
     load_userdict("userdict.txt")
 
     stop_flags = set(
@@ -100,8 +98,8 @@ async def generate_word_cloud(
             # 忽略命令消息
             continue
         if me.id == msg.from_id and (
-            msg.text.startswith("消息词云机器鱼为您生成消息词云") or
-            msg.text.startswith("发送 /wordcloud")
+            msg.text.startswith("消息词云机器鱼为您生成消息词云")
+            or msg.text.startswith("发送 /wordcloud")
         ):
             # 忽略之前自己发送的词云消息
             continue
