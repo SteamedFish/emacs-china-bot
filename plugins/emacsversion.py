@@ -34,7 +34,7 @@ class EmacsVersion:
                 ):
                     with attempt:
                         r = await client.get(self.checkurl)
-            except httpx.HTTPStatusError:
+            except (httpx.HTTPStatusError, httpx.ReadTimeout):
                 return None
         webpage = r.text
 

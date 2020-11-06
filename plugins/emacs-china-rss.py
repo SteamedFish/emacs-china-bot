@@ -28,7 +28,7 @@ async def fetch_url(url: str, timeout: int = 5, retry: int = 5):
             ):
                 with attempt:
                     r = await client.get(url)
-        except httpx.HTTPStatusError as e:
+        except (httpx.HTTPStatusError, httpx.ReadTimeout) as e:
             return str(e)
     return r.json()
 
