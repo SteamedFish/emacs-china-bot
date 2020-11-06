@@ -103,8 +103,8 @@ async def generate_word_cloud(
         ):
             # 忽略之前自己发送的词云消息
             continue
-        # 频道消息没有 from_id
-        if msg.from_id:
+        # 频道消息没有 from_id/user_id
+        if msg.from_id and msg.from_id.user_id:
             fromuserisbot = await isbot(msg.from_id.user_id)
             if fromuserisbot:
                 # ignore messages from bot
