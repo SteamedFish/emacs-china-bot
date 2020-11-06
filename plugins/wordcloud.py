@@ -16,7 +16,7 @@ from wordcloud import WordCloud
 
 
 @alru_cache(None)
-async def isbot(userid: hints.PeerID) -> bool:
+async def isbot(userid: int) -> bool:
     """用户是否是 bot"""
     # get_entity 操作比较多，存在大量重复，导致比较耗时，做个 cache
     user = await userbot.get_entity(userid)
