@@ -114,6 +114,8 @@ async def generate_word_cloud(
         if me.id == msg.from_id and (
             msg.text.startswith("消息词云机器鱼为您生成消息词云")
             or msg.text.startswith("发送 /wordcloud")
+            or msg.text.endswith("的消息词云")
+            or msg.text.startswith("/ 正在为您生成词云")
         ):
             # 忽略之前自己发送的词云消息
             continue
