@@ -103,12 +103,8 @@ async def generate_word_cloud(
             inline_messages += 1
 
         if reply_to and total_messages % 10000 == 0:
-            try:
-                await temp_message.edit(
-                    text=f"/ 正在为您生成词云，请耐心等待。当前已经处理了 {total_messages} 条消息。"
-                )
-            except:
-                pass
+            asyncio.create_task(temp_message.edit(
+                text=f"/ 正在为您生成词云，请耐心等待。当前已经处理了 {total_messages} 条消息。"))
 
         if not msg.text:
             continue
@@ -147,10 +143,7 @@ async def generate_word_cloud(
         image.save(stream, "PNG")
 
     if reply_to:
-        try:
-            await temp_message.delete()
-        except:
-            logger.info("删除临时消息失败")
+        asyncio.create_task(temp_message.delete())
 
     logger.info(f"终于生成好了 {utils.get_display_name(channel)} 频道的词云")
     await userbot.send_message(
