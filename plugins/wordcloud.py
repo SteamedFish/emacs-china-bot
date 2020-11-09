@@ -102,7 +102,7 @@ async def generate_word_cloud(
         if msg.via_bot_id:
             inline_messages += 1
 
-        if reply_to and total_messages % 100 == 0:
+        if reply_to and total_messages % 10000 == 0:
             try:
                 await temp_message.edit(
                     text=f"/ 正在为您生成词云，请耐心等待。当前已经处理了 {total_messages} 条消息。"
