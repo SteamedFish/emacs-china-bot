@@ -2,7 +2,7 @@
 
 """telegram user bot."""
 
-import importlib
+import importlib.util
 import logging
 import sys
 from configparser import ConfigParser
