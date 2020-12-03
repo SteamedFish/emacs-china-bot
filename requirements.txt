@@ -7,3 +7,4 @@ jieba
 packaging
 python_dateutil
 tenacity
+wordcloud
