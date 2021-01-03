@@ -245,7 +245,7 @@ async def generate_word_cloud_from_event(event) -> None:
 
 @aiocron.crontab("0 0 * * 6")
 async def generate_word_cloud_for_channels_weekly() -> None:
-    channels = ["@emacs_zh", "@keyboard_cn"]
+    channels = ["@emacs_zh", "@keyboard_cn", "beancount_zh"]
     from_time = datetime.now(tzlocal()) - timedelta(weeks=1)
     end_time = datetime.now(tzlocal())
     for channel in channels:
@@ -254,7 +254,7 @@ async def generate_word_cloud_for_channels_weekly() -> None:
 
 @aiocron.crontab("0 0 1 * *")
 async def generate_word_cloud_for_channels_monthly() -> None:
-    channels = ["@emacs_zh", "@keyboard_cn"]
+    channels = ["@emacs_zh", "@keyboard_cn", "beancount_zh"]
     from_time = datetime.now(tzlocal()) - relativedelta(months=1)
     end_time = datetime.now(tzlocal())
     for channel in channels:
@@ -263,7 +263,7 @@ async def generate_word_cloud_for_channels_monthly() -> None:
 
 @aiocron.crontab("0 0 1 1 *")
 async def generate_word_cloud_for_channels_yealy() -> None:
-    channels = ["@emacs_zh", "@keyboard_cn"]
+    channels = ["@emacs_zh", "@keyboard_cn", "beancount_zh"]
     from_time = datetime.now(tzlocal()) - relativedelta(years=1)
     end_time = datetime.now(tzlocal())
     for channel in channels:
