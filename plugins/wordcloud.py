@@ -197,7 +197,7 @@ async def generate_word_cloud_from_event(event) -> None:
         return
     to_chat = await event.get_chat()
 
-    _, *rest = msg.text.lower().split(" ")
+    _, *rest = msg.text.lower().split()
 
     if (not rest) or (len(rest) > 2):
         await send_help(event)
