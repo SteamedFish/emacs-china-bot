@@ -227,6 +227,10 @@ async def generate_word_cloud_from_event(event) -> None:
 
     try:
         starttime = datetime.now(tzlocal()) - timedelta(days=days)
+    except ValueError:
+        # days may be NaN/inf/-inf
+        await send_help(event)
+        return
     except OverflowError:
         # python 的时间只能在 1-9999 年之间
         if days > 0:
