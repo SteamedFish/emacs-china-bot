@@ -228,7 +228,8 @@ async def generate_word_cloud_from_event(event) -> None:
     try:
         starttime = datetime.now(tzlocal()) - timedelta(days=days)
     except ValueError:
-        # days may be NaN/inf/-inf
+        # days may be NaN, which timedelta cannot support
+        # inf and -inf is supported
         await send_help(event)
         return
     except OverflowError:
