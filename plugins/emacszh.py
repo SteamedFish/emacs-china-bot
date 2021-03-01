@@ -6,7 +6,7 @@ from telethon import events, utils, errors
 
 @userbot.on(events.ChatAction(chats="@emacszh"))
 async def remove_join_messages(event) -> None:
-    """remove messages of join."""
+    """remove user joinning message."""
     if event.user_joined:
         await event.delete()
 
