@@ -12,6 +12,9 @@ from dateutil.relativedelta import relativedelta
 from dateutil.tz import tzlocal
 from jieba import load_userdict, posseg
 from telethon import events, hints, utils
+from telethon.tl.functions.messages import GetStickerSetRequest
+from telethon.tl.types import InputStickerSetShortName
+
 from wordcloud import WordCloud
 
 
@@ -189,6 +192,17 @@ async def send_help(event) -> None:
         logger.info("删除帮助消息失败")
 
 
+async def send_complain_sticker(event) -> None:
+    """send a sticker complaning that the user asks too much."""
+
+    sticker_set = await userbot(GetStickerSetRequest(
+        stickerset=InputStickerSetShortName("yixinFQJ")
+    ))
+    await event.reply(
+        file=sticker_set.documents[1]
+    )
+
+
 @userbot.on(events.NewMessage(pattern="/wordcloud"))
 async def generate_word_cloud_from_event(event) -> None:
     """generate word cloud based on event."""
@@ -238,6 +252,12 @@ async def generate_word_cloud_from_event(event) -> None:
             starttime = datetime(1, 1, 1, tzinfo=tzlocal())
         else:
             starttime = datetime(9999, 12, 31, 23, 59, 59, tzinfo=tzlocal())
+
+    me = await userbot.get_me()
+    if me.id != msg.from_id and user is None and days > 30:
+        # full message for more than 30 days, that's too much!
+        await send_complain_sticker(event)
+        return
 
     await generate_word_cloud(
         to_chat,
