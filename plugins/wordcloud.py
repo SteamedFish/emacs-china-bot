@@ -114,16 +114,17 @@ async def generate_word_cloud(
         if msg.text.startswith("/wordcloud"):
             # 忽略命令消息
             continue
-        if me.id == msg.from_id and (
-            msg.text.startswith("消息词云机器鱼为您生成消息词云")
-            or msg.text.startswith("发送 /wordcloud")
-            or msg.text.endswith("的消息词云")
-            or msg.text.startswith("/ 正在为您生成词云")
-        ):
-            # 忽略之前自己发送的词云消息
-            continue
         # 频道消息没有 from_id/user_id
         if hasattr(msg, "from_id") and hasattr(msg.from_id, "user_id"):
+            if me.id == msg.from_id.user_id and (
+                msg.text.startswith("消息词云机器鱼为您生成消息词云")
+                or msg.text.startswith("发送 /wordcloud")
+                or msg.text.endswith("的消息词云")
+                or msg.text.startswith("/ 正在为您生成词云")
+            ):
+                # 忽略之前自己发送的词云消息
+                continue
+
             fromuserisbot = await isbot(msg.from_id.user_id)
             if fromuserisbot:
                 # ignore messages from bot
@@ -253,11 +254,12 @@ async def generate_word_cloud_from_event(event) -> None:
         else:
             starttime = datetime(9999, 12, 31, 23, 59, 59, tzinfo=tzlocal())
 
-    me = await userbot.get_me()
-    if me.id != msg.from_id and user is None and days > 30:
-        # full message for more than 30 days, that's too much!
-        await send_complain_sticker(event)
-        return
+    if hasattr(msg, "from_id") and hasattr(msg.from_id, "user_id"):
+        me = await userbot.get_me()
+        if me.id != msg.from_id.user_id and user is None and days > 30:
+            # full message for more than 30 days, that's too much!
+            await send_complain_sticker(event)
+            return
 
     await generate_word_cloud(
         to_chat,
