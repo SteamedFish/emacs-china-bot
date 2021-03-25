@@ -58,6 +58,7 @@ class EmacsVersion:
         if self.version is None:
             self.version = current_version
         elif current_version > self.version:
+            self.version = current_version
             return True
         return False
 
