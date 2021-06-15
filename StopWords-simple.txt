@@ -54,3 +54,4 @@ www
 们
 zao
 bot
+wan
