@@ -199,9 +199,14 @@ async def send_complain_sticker(event) -> None:
     sticker_set = await userbot(GetStickerSetRequest(
         stickerset=InputStickerSetShortName("yixinFQJ")
     ))
-    await event.reply(
+    sticker_message = await event.reply(
         file=sticker_set.documents[1]
     )
+    await asyncio.sleep(60)
+    try:
+        await sticker_message.delete()
+    except:
+        logger.info("删除表情提示消息失败")
 
 
 @userbot.on(events.NewMessage(pattern="/wordcloud"))
